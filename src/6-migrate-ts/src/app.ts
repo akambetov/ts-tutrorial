@@ -1,24 +1,38 @@
+type TID = string | number
+
+interface ITodo {
+  userId: TID
+  id: TID
+  title: string
+  completed: boolean
+}
+
+interface IUser {
+  id: TID
+  name:string
+}
+
 (function() {
   // Globals
   const todoList = document.getElementById('todo-list');
   const userSelect = document.getElementById('user-todo');
   const form = document.querySelector('form');
-  let todos = [];
-  let users = [];
+  let todos: ITodo[] = [];
+  let users: IUser[] = [];
 
   // Attach Events
   document.addEventListener('DOMContentLoaded', initApp);
-  form.addEventListener('submit', handleSubmit);
+  form?.addEventListener('submit', handleSubmit);
 
   // Basic Logic
-  function getUserName(userId) {
+  function getUserName(userId: TID) {
     const user = users.find((u) => u.id === userId);
-    return user.name;
+    return user?.name;
   }
-  function printTodo({ id, userId, title, completed }) {
+  function printTodo({ id, userId, title, completed }: ITodo) {
     const li = document.createElement('li');
     li.className = 'todo-item';
-    li.dataset.id = id;
+    li.dataset.id = String(id);
     li.innerHTML = `<span>${title} <i>by</i> <b>${getUserName(
       userId
     )}</b></span>`;
@@ -36,28 +50,35 @@
     li.prepend(status);
     li.append(close);
 
-    todoList.prepend(li);
+    todoList?.prepend(li);
   }
 
-  function createUserOption(user) {
-    const option = document.createElement('option');
-    option.value = user.id;
-    option.innerText = user.name;
+  function createUserOption(user: IUser) {
+    if (userSelect) {
+      const option = document.createElement('option');
+      option.value = String(user.id);
+      option.innerText = user.name;
 
-    userSelect.append(option);
+      userSelect.append(option)
+      }
   }
 
-  function removeTodo(todoId) {
-    todos = todos.filter((todo) => todo.id !== todoId);
-
-    const todo = todoList.querySelector(`[data-id="${todoId}"]`);
-    todo.querySelector('input').removeEventListener('change', handleTodoChange);
-    todo.querySelector('.close').removeEventListener('click', handleClose);
-
-    todo.remove();
+  function removeTodo(todoId: TID) {
+    if(todoList) {
+      todos = todos.filter((todo) => todo.id !== todoId);
+  
+      const todo = todoList.querySelector(`[data-id="${todoId}"]`);
+      
+      if(todo) {
+        todo.querySelector('input')?.removeEventListener('change', handleTodoChange);
+        todo.querySelector('.close')?.removeEventListener('click', handleClose);
+    
+        todo.remove();
+      }
+    }
   }
 
-  function alertError(error) {
+  function alertError(error: Error) {
     alert(error.message);
   }
 
@@ -71,28 +92,35 @@
       users.forEach((user) => createUserOption(user));
     });
   }
-  function handleSubmit(event) {
+  function handleSubmit(event: Event) {
     event.preventDefault();
 
-    createTodo({
-      userId: Number(form.user.value),
-      title: form.todo.value,
-      completed: false,
-    });
+    if (form) {
+      createTodo({
+        userId: Number(form.user.value),
+        title: form.todo.value,
+        completed: false,
+      });
+    }
   }
-  function handleTodoChange() {
-    const todoId = this.parentElement.dataset.id;
-    const completed = this.checked;
-
-    toggleTodoComplete(todoId, completed);
+  function handleTodoChange(this: HTMLInputElement) {
+    const parent = this.parentElement
+    if(parent) {
+      const todoId = parent.dataset.id;
+      const completed = this.checked;
+      todoId && toggleTodoComplete(todoId, completed);
+    }
   }
-  function handleClose() {
-    const todoId = this.parentElement.dataset.id;
-    deleteTodo(todoId);
+  function handleClose(this: HTMLSpanElement) {
+    const parent = this.parentElement
+    if(parent) {
+      const todoId = parent.dataset.id;
+      todoId && deleteTodo(todoId);
+    }
   }
 
   // Async logic
-  async function getAllTodos() {
+  async function getAllTodos(): Promise<ITodo[]> {
     try {
       const response = await fetch(
         'https://jsonplaceholder.typicode.com/todos?_limit=15'
@@ -101,11 +129,15 @@
 
       return data;
     } catch (error) {
-      alertError(error);
+      if (error instanceof Error) {
+        alertError(error);
+      }
+
+      return []
     }
   }
 
-  async function getAllUsers() {
+  async function getAllUsers(): Promise<IUser[]> {
     try {
       const response = await fetch(
         'https://jsonplaceholder.typicode.com/users?_limit=5'
@@ -114,11 +146,15 @@
 
       return data;
     } catch (error) {
-      alertError(error);
+      if (error instanceof Error) {
+        alertError(error);
+      }
+      
+      return []
     }
   }
 
-  async function createTodo(todo) {
+  async function createTodo(todo: Omit<ITodo, 'id'>) {
     try {
       const response = await fetch(
         'https://jsonplaceholder.typicode.com/todos',
@@ -135,11 +171,13 @@
 
       printTodo(newTodo);
     } catch (error) {
-      alertError(error);
+      if (error instanceof Error) {
+        alertError(error);
+      }
     }
   }
 
-  async function toggleTodoComplete(todoId, completed) {
+  async function toggleTodoComplete(todoId: TID, completed: boolean) {
     try {
       const response = await fetch(
         `https://jsonplaceholder.typicode.com/todos/${todoId}`,
@@ -156,11 +194,13 @@
         throw new Error('Failed to connect with the server! Please try later.');
       }
     } catch (error) {
-      alertError(error);
+      if (error instanceof Error) {
+        alertError(error);
+      }
     }
   }
 
-  async function deleteTodo(todoId) {
+  async function deleteTodo(todoId: TID) {
     try {
       const response = await fetch(
         `https://jsonplaceholder.typicode.com/todos/${todoId}`,
@@ -178,7 +218,9 @@
         throw new Error('Failed to connect with the server! Please try later.');
       }
     } catch (error) {
-      alertError(error);
+      if (error instanceof Error) {
+        alertError(error);
+      }
     }
   }
 })()
