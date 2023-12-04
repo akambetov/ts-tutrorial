@@ -30,6 +30,16 @@ function App() {
     setText('');
   };
 
+  const addTodoRef = (inputValue: string) => {
+    const newTodo: ITodo = {
+      id: new Date().toString(),
+      title: inputValue,
+      completed: false,
+    };
+
+    setTodos((prev) => [newTodo, ...prev]);
+  };
+
   // Будет ошибка при написании fetch в одну стороку в одну стору,
   // так как стрелочная функция возвращает в данном случае некий Promise<Response>
   // а useEffect ждет либо void, либо callback для отчитки
@@ -41,9 +51,16 @@ function App() {
       .then((data: ITodo[]) => setTodos(data));
   }, []);
 
+  console.log(todos);
+
   return (
     <div className="App">
-      <NewTodoForm value={text} onChange={handleInput} handleClick={addTodo} />
+      <NewTodoForm
+        value={text}
+        onChange={handleInput}
+        handleClick={addTodo}
+        handleClickRef={addTodoRef}
+      />
       <TodoItem
         id="1"
         title="Title 1"
