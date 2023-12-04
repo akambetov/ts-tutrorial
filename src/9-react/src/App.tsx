@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import TodoItem from './components/TodoItem';
 import NewTodoForm from './components/NewTodoForm';
@@ -29,6 +29,17 @@ function App() {
     setTodos((prev) => [newTodo, ...prev]);
     setText('');
   };
+
+  // Будет ошибка при написании fetch в одну стороку в одну стору,
+  // так как стрелочная функция возвращает в данном случае некий Promise<Response>
+  // а useEffect ждет либо void, либо callback для отчитки
+  // useEffect(() => fetch('https://jsonplaceholder.typicode.com/todos'));
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/todos')
+      .then((response) => response.json())
+      .then((data: ITodo[]) => setTodos(data));
+  }, []);
 
   return (
     <div className="App">
