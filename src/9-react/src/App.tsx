@@ -2,19 +2,14 @@ import { useState } from 'react';
 import './App.css';
 import TodoItem from './components/TodoItem';
 import NewTodoForm from './components/NewTodoForm';
-
-type ITodo = {
-  id: string;
-  title: string;
-  completed: string;
-};
+import { ITodo } from './types';
 
 function App() {
   const [text, setText] = useState('');
   // !!! при работе с массивами при укзании пустого массива в качестве inital,
   // то тип для стейта будуте массив never -  never[]
   // const [todos, setTodos] = useState([])
-  const [todos, setTodos] = useState<string[]>([]);
+  const [todos, setTodos] = useState<ITodo[]>([]);
   // !!! если надо засетить initial в качестве null
   // то в дженерике указываем union из типа который нужен и null
   //  в коде нужна будет проверка на null
@@ -25,7 +20,13 @@ function App() {
     setText(event.target.value);
 
   const addTodo = () => {
-    setTodos((prev) => [...prev, text]);
+    const newTodo: ITodo = {
+      id: new Date().toString(),
+      title: text,
+      completed: false,
+    };
+
+    setTodos((prev) => [newTodo, ...prev]);
     setText('');
   };
 
