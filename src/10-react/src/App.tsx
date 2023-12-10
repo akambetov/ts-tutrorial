@@ -1,5 +1,5 @@
 import { Container } from 'components/Container';
-import { SearchWithRef } from 'components/Search';
+import { SearchWithRef, SearchWithoutRef } from 'components/Search';
 import { TheHeader } from 'components/TheHeader';
 
 function App() {
@@ -7,6 +7,8 @@ function App() {
     <Container>
       <TheHeader />
       <SearchWithRef hasError onSubmit={() => {}} />
+      <br />
+      <SearchWithoutRef hasError onSubmit={() => {}} />
     </Container>
   );
 }
