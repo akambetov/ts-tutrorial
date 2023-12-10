@@ -15,7 +15,7 @@ export const SearchWithRef = ({ hasError, onSubmit }: SearchWithRefProps) => {
     event.preventDefault();
     const text = searchRef.current?.value || '';
 
-    if (text) {
+    if (text.trim()) {
       onSubmit(text);
 
       if (searchRef.current) {
